@@ -1,0 +1,33 @@
+/* src/components/Header/Header.css */
+
+.header {
+  display: flex;
+  justify-content: flex-end; /* push content to the right */
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* space between name and button */
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.user-info button {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-info button:hover {
+  background-color: #ae00ff;
+}
