@@ -1,28 +1,26 @@
-// src/components/Header/Header.tsx
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 import "./Header.css";
 
 export default function Header() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const { user, logout } = useAuth();
 
-  function handleLogout() {
-    localStorage.removeItem("user");
-    localStorage.removeItem("secret");
-    navigate("/");
+  async function handleLogout() {
+    logout(); // Clears user + localStorage inside AuthContext
+    navigate("/login", { replace: true });
   }
+
+  if (!user) return null;
 
   return (
     <header className="header">
-      {user && (
-        <div className="user-info">
-          <span>
-            {user.firstName} {user.lastName}
-          </span>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )}
+      <div className="user-info">
+        <span>
+          {user.firstName} {user.lastName}
+        </span>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
     </header>
   );
 }

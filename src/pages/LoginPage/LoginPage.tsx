@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
 export default function LoginPage() {
+  console.log("LoginPage rendered");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,8 +21,7 @@ export default function LoginPage() {
         console.log('login successful, storing user and secret in localStorage');
         localStorage.setItem("user", JSON.stringify(result.user));
         localStorage.setItem("secret", result.secret!);
-        console.log('navigating to /hierarchy');
-        navigate("/hierarchy");
+        navigate("/users");
       } else {
         setError(result.message || "Login failed");
       }

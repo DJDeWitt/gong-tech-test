@@ -1,8 +1,6 @@
-/* src/components/Header/Header.css */
-
 .header {
   display: flex;
-  justify-content: flex-end; /* push content to the right */
+  justify-content: flex-end;
   align-items: center;
   padding: 16px 24px;
   background-color: #f5f5f5;
@@ -12,7 +10,7 @@
 .user-info {
   display: flex;
   align-items: center;
-  gap: 12px; /* space between name and button */
+  gap: 12px;
   font-size: 16px;
   font-weight: 500;
 }

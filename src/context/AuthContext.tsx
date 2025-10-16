@@ -1,7 +1,6 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { getUserBySecret } from "../api/firebase";
-import { type User } from "../api/firebase";
+import { getUserBySecret, type User } from "../api/firebase";
 
 interface AuthContextType {
   user: User | null;
@@ -9,6 +8,7 @@ interface AuthContextType {
   logout: () => void;
   setUser: (user: User | null) => void;
   revalidate: () => Promise<void>;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -18,7 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function validateUser() {
+    setLoading(true);
     const secret = localStorage.getItem("secret");
+
+    // No secret means no logged-in user
     if (!secret) {
       setUser(null);
       setLoading(false);
@@ -27,11 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const validUser = await getUserBySecret(secret);
+
       if (validUser) {
         setUser(validUser);
         localStorage.setItem("user", JSON.stringify(validUser));
       } else {
-        // secret no longer valid — remove and log out
         logout();
       }
     } catch (err) {
@@ -43,13 +46,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
+    console.log("Logging out user");
     localStorage.removeItem("secret");
     localStorage.removeItem("user");
     setUser(null);
   }
 
-  // Run validation on mount
+  // On mount: restore user from localStorage quickly, then verify with Firebase for freshness.
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.warn("Corrupt user in localStorage, clearing it.");
+        logout();
+      }
+    }
+
     validateUser();
   }, []);
 
@@ -59,11 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     setUser,
     revalidate: validateUser,
+    isAuthenticated: !!user,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

@@ -1,32 +1,28 @@
-// src/pages/HierarchyPage.tsx
 import { useEffect, useState } from "react";
-import { getUsers, buildUserHierarchy, type UserNode } from "../../api/firebase";
-import "./HierarchyPage.css";
-import { useNavigate } from "react-router-dom";
+import { getUsers, buildUsersTree, type UserNode } from "../../api/firebase";
+import "./UsersPage.css";
 
-export default function HierarchyPage() {
-  const [hierarchy, setHierarchy] = useState<UserNode[]>([]);
+export default function UsersPage() {
+  console.log("UsersPage rendered");
+  const [tree, setTree] = useState<UserNode[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   useEffect(() => {
     async function fetchData() {
       const users = await getUsers();
-      const tree = buildUserHierarchy(users);
-      setHierarchy(tree);
+      const tree = buildUsersTree(users);
+      setTree(tree);
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <p>Loading hierarchy...</p>;
+  if (loading) return <p>Loading tree...</p>;
 
   return (
-    <div className="hierarchy-container">
-    <h1>User Hierarchy</h1>
-      <UserTree nodes={hierarchy} />
+    <div className="tree-container">
+    <h1>Hierarchy Tree</h1>
+      <UserTree nodes={tree} />
     </div>
   );
 }

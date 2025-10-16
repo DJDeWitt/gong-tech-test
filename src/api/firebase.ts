@@ -1,5 +1,3 @@
-// src/api/firebase.ts
-// Your API calls (getUsers, buildUserHierarchy, login, etc.)
 import { encode } from "../utils/encode";
 
 const BASE_URL = "https://gongfetest.firebaseio.com";
@@ -13,7 +11,7 @@ export interface User {
   username: string;
   email: string;
   password: string;
-  photo?: string; // optional URL to user's photo
+  photo?: string;
 }
 
 export interface LoginResponse {
@@ -25,16 +23,28 @@ export interface LoginResponse {
 
 export async function getUserBySecret(secret: string): Promise<User | null> {
   try {
+    console.log('getUserBySecret called with secret:', secret);
     const secretRes = await fetch(`${BASE_URL}/secrets/${secret}.json`);
     const userId = await secretRes.json();
+    console.log('userId from secret:', userId);
 
     if (!userId) {
       console.warn("Invalid secret or user not found");
       return null;
     }
 
-    const userRes = await fetch(`${BASE_URL}/users/${userId}.json`);
-    const user = await userRes.json();
+    // const userRes = await fetch(`${BASE_URL}/users/${userId}.json`);
+    // const user = await userRes.json();
+
+    const usersRes = await fetch(`${BASE_URL}/users.json`);
+    if (!usersRes.ok) {
+      throw new Error("Failed to fetch users");
+    }
+
+    const users: any[] = await usersRes.json();
+    const user = Array.isArray(users)
+      ? users.find((u) => u?.id === userId)
+      : null;
 
     if (!user) {
       console.warn("User data not found for ID:", userId);
@@ -90,7 +100,7 @@ export interface UserNode extends User {
   reports: UserNode[];
 }
 
-export function buildUserHierarchy(users: User[]): UserNode[] {
+export function buildUsersTree(users: User[]): UserNode[] {
   const map = new Map<number, UserNode>();
   users.forEach((u) => map.set(u.id, { ...u, reports: [] }));
 
